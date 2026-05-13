@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { API_BASE } from "../../lib/apiBase";
 import { setDecoratorToken } from "../../lib/decoratorAuth";
+import { fmtDate, fmtDateISO } from "../../lib/dateUtils";
 import { Icon } from "../../components/Icon";
 import { toast } from "../../store/toast";
 
@@ -160,8 +161,7 @@ export default function DecoratorInvitation() {
             className="w-11 h-11 rounded-xl grid place-items-center"
             style={{ background: "linear-gradient(135deg, #ff6a00, #ff2d92)" }}
           >
-            <Icon name="sparkles" className="icon" />
-            <style>{`.flex.items-center > div:first-child .icon { stroke: white; }`}</style>
+            <Icon name="sparkles" className="icon" stroke="white" />
           </div>
           <div>
             <div className="font-display font-bold text-[15px]">Exhibition OS</div>
@@ -184,7 +184,7 @@ export default function DecoratorInvitation() {
           </h1>
           <div className="text-[14px] font-display opacity-90">
             {event?.name}
-            {event?.startDate && ` · ${String(event.startDate).slice(0, 10)}`}
+            {event?.startDate && ` · ${fmtDateISO(event.startDate)}`}
             {event?.location && ` · ${event.location}`}
           </div>
           <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
@@ -198,8 +198,7 @@ export default function DecoratorInvitation() {
                 className="w-16 h-16 rounded-full mx-auto mb-4 grid place-items-center"
                 style={{ background: "linear-gradient(135deg, #30d158, #0bb850)" }}
               >
-                <Icon name="check" className="icon" />
-                <style>{`.text-center .icon { stroke: white; width: 32px; height: 32px; }`}</style>
+                <Icon name="check" className="icon w-8 h-8" stroke="white" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight mb-2">
                 {matchedExisting ? "已接受邀請" : "註冊成功"}
@@ -247,8 +246,7 @@ export default function DecoratorInvitation() {
               className="w-16 h-16 rounded-full mx-auto mb-4 grid place-items-center"
               style={{ background: "linear-gradient(135deg, #30d158, #0bb850)" }}
             >
-              <Icon name="check" className="icon" />
-              <style>{`.text-center .icon { stroke: white; width: 32px; height: 32px; }`}</style>
+              <Icon name="check" className="icon w-8 h-8" stroke="white" />
             </div>
             <h2 className="text-xl font-bold mb-2 tracking-tight">歡迎回來</h2>
             <p className="text-[14px] mb-5" style={{ color: "var(--text-secondary)" }}>
@@ -367,7 +365,7 @@ export default function DecoratorInvitation() {
               className="text-[11px] font-display mt-4 p-3 rounded-lg"
               style={{ background: "var(--bg-tinted)", color: "var(--text-tertiary)" }}
             >
-              邀請有效期至 {invitation.expiresAt ? new Date(invitation.expiresAt).toLocaleDateString("zh-TW") : "—"}。
+              邀請有效期至 {fmtDate(invitation.expiresAt)}。
             </div>
           </div>
         )}

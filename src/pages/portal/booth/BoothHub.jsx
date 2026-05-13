@@ -56,7 +56,6 @@ export default function BoothHub({ vendor, event }) {
                 style={{ background: `${c.accent}15`, color: c.accent }}
               >
                 <Icon name={c.icon} className="icon w-6 h-6" />
-                <style>{`.grid .icon { stroke: currentColor; }`}</style>
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-[17px] font-bold tracking-tight mb-1">{c.title}</h3>

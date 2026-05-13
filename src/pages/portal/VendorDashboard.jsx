@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { SceneHead, Panel } from "../../components/Scene";
 import { Icon } from "../../components/Icon";
 import { derivePackageTypes } from "../../lib/vendorAuth";
+import { fmtDateRange } from "../../lib/dateUtils";
 import { PAYMENT_STATUS } from "../../constants/paymentStatus";
 
 const WAITING_META = {
@@ -150,8 +151,7 @@ export default function VendorDashboard({ vendor, event, packages = [] }) {
           className="w-14 h-14 rounded-full grid place-items-center flex-shrink-0"
           style={{ background: meta.accent, color: "white" }}
         >
-          <Icon name={meta.icon} className="icon w-7 h-7" />
-          <style>{`.grid .icon { stroke: white; }`}</style>
+          <Icon name={meta.icon} className="icon w-7 h-7" stroke="white" />
         </div>
         <div className="flex-1 min-w-0">
           <div
@@ -208,16 +208,7 @@ export default function VendorDashboard({ vendor, event, packages = [] }) {
               {[
                 ["活動名稱", event.name],
                 ["類型", event.type],
-                [
-                  "日期",
-                  event.startDate
-                    ? `${String(event.startDate).slice(0, 10)}${
-                        event.endDate && event.endDate !== event.startDate
-                          ? ` – ${String(event.endDate).slice(0, 10)}`
-                          : ""
-                      }`
-                    : "—",
-                ],
+                ["日期", fmtDateRange(event.startDate, event.endDate)],
                 ["地點", event.location],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-3">
@@ -256,7 +247,6 @@ function FeatureCard({ title, icon, accent, desc, href, locked, actionText = "�
           style={{ background: `${accent}15`, color: accent }}
         >
           <Icon name={icon} className="icon w-5 h-5" />
-          <style>{`.grid .icon { stroke: currentColor; }`}</style>
         </div>
         {locked && (
           <span

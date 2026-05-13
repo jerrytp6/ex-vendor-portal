@@ -40,8 +40,7 @@ export function PortalLayout({
             className="w-9 h-9 rounded-[10px] grid place-items-center"
             style={{ background: "var(--role-grad)", boxShadow: "0 4px 12px rgba(0,0,0,0.18)" }}
           >
-            <Icon name={brand.role === "vendor" ? "building" : "sparkles"} />
-            <style>{`aside > div:first-child .icon { stroke: white; }`}</style>
+            <Icon name={brand.role === "vendor" ? "building" : "sparkles"} stroke="white" />
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-display font-bold text-[15px] tracking-tight truncate">

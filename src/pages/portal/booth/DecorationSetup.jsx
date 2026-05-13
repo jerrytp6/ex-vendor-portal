@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { SceneHead, Panel } from "../../../components/Scene";
 import { Icon } from "../../../components/Icon";
 import { vendorApi } from "../../../lib/vendorAuth";
+import { fmtDate } from "../../../lib/dateUtils";
 import { toast } from "../../../store/toast";
 
 const MODE_META = {
@@ -124,7 +125,6 @@ export default function DecorationSetup({ vendor: vendorProp, event }) {
                   style={{ background: `${m.accent}15`, color: m.accent }}
                 >
                   <Icon name={m.icon} className="icon w-6 h-6" />
-                  <style>{`.grid .icon { stroke: currentColor; }`}</style>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
@@ -200,7 +200,6 @@ export default function DecorationSetup({ vendor: vendorProp, event }) {
                   style={{ background: "rgba(191,90,242,0.15)", color: "#bf5af2" }}
                 >
                   <Icon name="link" className="icon w-5 h-5" />
-                  <style>{`.panel .grid .icon { stroke: currentColor; }`}</style>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] font-display uppercase tracking-wider mb-0.5" style={{ color: "var(--text-tertiary)" }}>
@@ -234,7 +233,7 @@ export default function DecorationSetup({ vendor: vendorProp, event }) {
                 />
                 <Info
                   label="有效期限"
-                  value={invitation.expiresAt ? new Date(invitation.expiresAt).toLocaleDateString("zh-TW") : "—"}
+                  value={fmtDate(invitation.expiresAt)}
                 />
               </div>
 

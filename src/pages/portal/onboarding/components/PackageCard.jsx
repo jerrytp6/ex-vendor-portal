@@ -22,7 +22,6 @@ export default function PackageCard({ pkg, checked, onToggle, onDetail }) {
         style={{ background: `${meta.accent}15`, color: meta.accent }}
       >
         <Icon name={meta.icon} className="icon w-6 h-6" />
-        <style>{`.grid .icon { stroke: currentColor; }`}</style>
       </div>
 
       <h3 className="text-[18px] font-bold tracking-tight mb-1">{pkg.name}</h3>

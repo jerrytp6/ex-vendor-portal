@@ -23,7 +23,6 @@ export default function PackageDetailView({ pkg, checked, onBack, onToggle }) {
           style={{ color: "var(--text-secondary)", background: "transparent", border: 0, padding: 0, cursor: "pointer" }}
         >
           <Icon name="arrow_left" className="icon w-4 h-4" />
-          <style>{`button .icon { stroke: currentColor; }`}</style>
           返回方案列表
         </button>
         <span className="text-[11px] font-display uppercase tracking-widest" style={{ color: meta.accent }}>
@@ -38,7 +37,6 @@ export default function PackageDetailView({ pkg, checked, onBack, onToggle }) {
             style={{ background: `${meta.accent}15`, color: meta.accent }}
           >
             <Icon name={meta.icon} className="icon w-7 h-7" />
-            <style>{`.grid .icon { stroke: currentColor; }`}</style>
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-[22px] font-bold tracking-tight">{pkg.name}</h3>

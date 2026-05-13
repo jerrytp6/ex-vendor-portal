@@ -163,8 +163,7 @@ function PageHeader({ companyName }) {
             className="w-9 h-9 rounded-[10px] grid place-items-center"
             style={{ background: "linear-gradient(135deg, #0071e3, #5e5ce6)" }}
           >
-            <Icon name="building" />
-            <style>{`header > div .grid .icon { stroke: white; }`}</style>
+            <Icon name="building" stroke="white" />
           </div>
           <div>
             <div className="font-display font-bold text-[15px]">{companyName}</div>

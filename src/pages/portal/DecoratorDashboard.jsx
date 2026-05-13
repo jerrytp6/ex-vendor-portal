@@ -68,8 +68,7 @@ export default function DecoratorDashboard({ data }) {
                       className="w-12 h-12 rounded-xl grid place-items-center flex-shrink-0"
                       style={{ background: "linear-gradient(135deg, #ff6a00, #ff2d92)" }}
                     >
-                      <Icon name="building" className="icon" />
-                      <style>{`.flex.items-start .icon { stroke: white; }`}</style>
+                      <Icon name="building" className="icon" stroke="white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">

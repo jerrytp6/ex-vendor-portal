@@ -92,8 +92,7 @@ function DecoratorStandalone({ data }) {
               className="w-9 h-9 rounded-[10px] grid place-items-center"
               style={{ background: "linear-gradient(135deg, #ff6a00, #ff2d92)" }}
             >
-              <Icon name="sparkles" />
-              <style>{`header > div .grid .icon { stroke: white; }`}</style>
+              <Icon name="sparkles" stroke="white" />
             </div>
             <div>
               <div className="font-display font-bold text-[15px]">{decorator.name}</div>

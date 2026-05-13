@@ -39,8 +39,7 @@ export default function DecoratorLogin() {
             className="w-11 h-11 rounded-xl grid place-items-center"
             style={{ background: "linear-gradient(135deg, #ff6a00, #ff2d92)" }}
           >
-            <Icon name="sparkles" />
-            <style>{`.grid .icon { stroke: white; }`}</style>
+            <Icon name="sparkles" stroke="white" />
           </div>
           <div>
             <div className="font-display font-bold text-[15px]">Exhibition OS</div>

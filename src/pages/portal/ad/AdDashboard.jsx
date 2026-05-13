@@ -23,7 +23,6 @@ export default function AdDashboard({ vendor, event }) {
           style={{ background: "rgba(191,90,242,0.15)", color: "#bf5af2" }}
         >
           <Icon name="layers" className="icon w-7 h-7" />
-          <style>{`.grid .icon { stroke: currentColor; }`}</style>
         </div>
         <h3 className="text-[18px] font-bold mb-2">廣告管理功能準備中</h3>
         <p className="text-[13px] max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>

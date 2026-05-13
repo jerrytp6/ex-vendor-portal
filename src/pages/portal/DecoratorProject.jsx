@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { decoratorApi } from "../../lib/decoratorAuth";
+import { fmtDateRange } from "../../lib/dateUtils";
 import { SceneHead, Panel, Field } from "../../components/Scene";
 import { Modal } from "../../components/Modal";
 import { Icon } from "../../components/Icon";
@@ -143,11 +144,7 @@ export default function DecoratorProject({ decorator }) {
         <Panel title="活動資訊">
           <dl className="space-y-3 text-[14px]">
             <Row k="活動名稱" v={event?.name} />
-            <Row k="日期" v={
-              event?.startDate
-                ? `${String(event.startDate).slice(0,10)}${event.endDate && event.endDate !== event.startDate ? ` – ${String(event.endDate).slice(0,10)}` : ""}`
-                : "—"
-            } />
+            <Row k="日期" v={fmtDateRange(event?.startDate, event?.endDate)} />
             <Row k="地點" v={event?.location || "—"} />
           </dl>
         </Panel>

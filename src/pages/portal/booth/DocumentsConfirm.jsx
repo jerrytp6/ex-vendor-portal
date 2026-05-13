@@ -3,12 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { SceneHead } from "../../../components/Scene";
 import { Icon } from "../../../components/Icon";
 import { vendorApi } from "../../../lib/vendorAuth";
+import { fmtDate } from "../../../lib/dateUtils";
 import { toast } from "../../../store/toast";
-
-function fmtDate(d) {
-  if (!d) return null;
-  try { return new Date(d).toLocaleDateString("zh-TW"); } catch { return String(d).slice(0, 10); }
-}
 
 export default function DocumentsConfirm({ event }) {
   const { vendorId } = useParams();
@@ -86,8 +82,7 @@ export default function DocumentsConfirm({ event }) {
             color: "white",
           }}
         >
-          <Icon name={stats.requiredAcked === stats.requiredTotal && stats.requiredTotal > 0 ? "check" : "clipboard"} className="icon w-6 h-6" />
-          <style>{`.grid .icon { stroke: white; }`}</style>
+          <Icon name={stats.requiredAcked === stats.requiredTotal && stats.requiredTotal > 0 ? "check" : "clipboard"} className="icon w-6 h-6" stroke="white" />
         </div>
         <div className="flex-1">
           <div className="text-[14px] font-semibold mb-0.5">
@@ -145,7 +140,6 @@ function DocumentRow({ doc, loading, onAck }) {
         style={{ background: confirmed ? "rgba(48,209,88,0.15)" : "rgba(0,113,227,0.1)", color: confirmed ? "#1f8a3a" : "#0071e3" }}
       >
         <Icon name={confirmed ? "check" : "document"} className="icon w-5 h-5" />
-        <style>{`.grid .icon { stroke: currentColor; }`}</style>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">

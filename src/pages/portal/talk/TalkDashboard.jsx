@@ -23,7 +23,6 @@ export default function TalkDashboard({ vendor, event }) {
           style={{ background: "rgba(94,92,230,0.15)", color: "#5e5ce6" }}
         >
           <Icon name="sparkles" className="icon w-7 h-7" />
-          <style>{`.grid .icon { stroke: currentColor; }`}</style>
         </div>
         <h3 className="text-[18px] font-bold mb-2">演講管理功能準備中</h3>
         <p className="text-[13px] max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>

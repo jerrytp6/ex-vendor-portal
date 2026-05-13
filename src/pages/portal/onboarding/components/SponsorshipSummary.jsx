@@ -32,8 +32,7 @@ export default function SponsorshipSummary({
             className="w-9 h-9 rounded-lg grid place-items-center"
             style={{ background: "rgba(255,255,255,0.2)" }}
           >
-            <Icon name="clipboard" className="icon w-5 h-5" />
-            <style>{`aside .grid .icon { stroke: white; }`}</style>
+            <Icon name="clipboard" className="icon w-5 h-5" stroke="white" />
           </div>
           <div>
             <div className="font-display font-semibold text-[14px]">方案摘要</div>

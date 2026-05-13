@@ -1,9 +1,19 @@
 // 簡易 SVG 圖示集 — 採用 lucide-style 線條圖示，與原型一致
-export function Icon({ name, className = "icon" }) {
+//
+// 用法：
+//   <Icon name="building" />                          // 預設繼承父層 color
+//   <Icon name="building" stroke="white" />           // 強制 stroke 色（取代之前 <style>{`.icon { stroke: white }`}</style> 的 hack）
+//   <Icon name="building" className="icon w-5 h-5" /> // 自訂尺寸
+export function Icon({ name, className = "icon", stroke, style }) {
   const paths = ICONS[name];
   if (!paths) return null;
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      style={stroke ? { stroke, ...style } : style}
+    >
       {paths}
     </svg>
   );
