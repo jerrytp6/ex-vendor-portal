@@ -84,7 +84,11 @@ export default function VendorPortal() {
     }
     load(true);
     // 監聽 vendor 資料變動事件（子頁面操作完成後 dispatch）
-    const refetchHandler = () => load(false);
+    const refetchHandler = async () => {
+      await load(false);
+      // 通知觸發者：refetch 已完成（讓 SelectSponsorship 可以等到才 navigate）
+      window.dispatchEvent(new Event("vendor-refetched"));
+    };
     window.addEventListener("vendor-refetch", refetchHandler);
     return () => {
       alive = false;

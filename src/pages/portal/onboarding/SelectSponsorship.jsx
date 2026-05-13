@@ -122,10 +122,21 @@ export default function SelectSponsorship() {
     try {
       await vendorApi.setSponsorship(Array.from(selected));
       toast.success("方案已確認，立即進入後台");
-      // 通知父層（VendorPortal）重新抓 vendor / packages 後再導向
-      window.dispatchEvent(new Event("vendor-refetch"));
-      // 給 state 一點點時間 propagate 再 navigate
-      setTimeout(() => navigate(`/portal/vendor/${vendorId}`), 100);
+      // 等父層 VendorPortal 重新抓完 vendor / packages 再導向，避免 race condition 被彈回選方案頁
+      await new Promise((resolve) => {
+        const onDone = () => {
+          window.removeEventListener("vendor-refetched", onDone);
+          resolve();
+        };
+        window.addEventListener("vendor-refetched", onDone);
+        window.dispatchEvent(new Event("vendor-refetch"));
+        // 保險：最多等 3 秒
+        setTimeout(() => {
+          window.removeEventListener("vendor-refetched", onDone);
+          resolve();
+        }, 3000);
+      });
+      navigate(`/portal/vendor/${vendorId}`);
     } catch (err) {
       if (err.status === 409) toast.error("付款已完成，無法變更方案");
       else toast.error(`送出失敗：${err.message}`);
