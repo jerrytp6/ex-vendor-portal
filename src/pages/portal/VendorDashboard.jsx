@@ -3,25 +3,21 @@ import { Link } from "react-router-dom";
 import { SceneHead, Panel } from "../../components/Scene";
 import { Icon } from "../../components/Icon";
 import { derivePackageTypes } from "../../lib/vendorAuth";
+import { PAYMENT_STATUS } from "../../constants/paymentStatus";
+
+const WAITING_META = {
+  label: "等待主辦方審核",
+  desc: "您的贊助方案已送出。主辦方專員將透過 email 或電話與您聯絡，確認付款方式與後續流程。",
+  accent: "#0071e3",
+  bg: "rgba(0,113,227,0.08)",
+  border: "rgba(0,113,227,0.3)",
+  icon: "activity",
+};
 
 const STATUS_META = {
-  not_started: {
-    label: "等待主辦方審核",
-    desc: "您的贊助方案已送出。主辦方專員將透過 email 或電話與您聯絡，確認付款方式與後續流程。",
-    accent: "#0071e3",
-    bg: "rgba(0,113,227,0.08)",
-    border: "rgba(0,113,227,0.3)",
-    icon: "activity",
-  },
-  submitted: {
-    label: "等待主辦方審核",
-    desc: "您的贊助方案已送出。主辦方專員將透過 email 或電話與您聯絡，確認付款方式與後續流程。",
-    accent: "#0071e3",
-    bg: "rgba(0,113,227,0.08)",
-    border: "rgba(0,113,227,0.3)",
-    icon: "activity",
-  },
-  approved: {
+  [PAYMENT_STATUS.NOT_STARTED]: WAITING_META,
+  [PAYMENT_STATUS.SUBMITTED]:   WAITING_META,
+  [PAYMENT_STATUS.APPROVED]: {
     label: "方案已通過",
     desc: "全部後台功能已開通，可開始管理您的參展內容。",
     accent: "#1f8a3a",
@@ -29,7 +25,7 @@ const STATUS_META = {
     border: "rgba(48,209,88,0.3)",
     icon: "check",
   },
-  rejected: {
+  [PAYMENT_STATUS.REJECTED]: {
     label: "已退件",
     desc: "您的方案被退件，請參考退件原因後重新選擇或聯繫主辦方。",
     accent: "#c5180c",
@@ -50,9 +46,9 @@ const PKG_TYPE_COLOR = {
 };
 
 export default function VendorDashboard({ vendor, event, packages = [] }) {
-  const status = vendor.paymentStatus || "not_started";
-  const meta = STATUS_META[status] || STATUS_META.not_started;
-  const approved = status === "approved";
+  const status = vendor.paymentStatus || PAYMENT_STATUS.NOT_STARTED;
+  const meta = STATUS_META[status] || STATUS_META[PAYMENT_STATUS.NOT_STARTED];
+  const approved = status === PAYMENT_STATUS.APPROVED;
   const canChange = !approved;
   const base = `/portal/vendor/${vendor.id}`;
 
@@ -170,7 +166,7 @@ export default function VendorDashboard({ vendor, event, packages = [] }) {
           <p className="text-[14px] leading-relaxed" style={{ color: "var(--text-secondary)" }}>
             {meta.desc}
           </p>
-          {status === "rejected" && vendor.paymentRejectReason && (
+          {status === PAYMENT_STATUS.REJECTED && vendor.paymentRejectReason && (
             <div
               className="mt-3 text-[13px] p-3 rounded-lg"
               style={{ background: "rgba(255,255,255,0.6)" }}
@@ -190,7 +186,7 @@ export default function VendorDashboard({ vendor, event, packages = [] }) {
                   border: `1px solid ${meta.border}`,
                 }}
               >
-                {status === "rejected" ? "重新選擇方案 →" : "變更方案 →"}
+                {status === PAYMENT_STATUS.REJECTED ? "重新選擇方案 →" : "變更方案 →"}
               </Link>
             </div>
           )}

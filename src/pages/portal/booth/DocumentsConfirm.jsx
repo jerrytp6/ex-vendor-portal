@@ -2,26 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { SceneHead } from "../../../components/Scene";
 import { Icon } from "../../../components/Icon";
-import { getVendorToken } from "../../../lib/vendorAuth";
-import { API_BASE } from "../../../lib/apiBase";
+import { vendorApi } from "../../../lib/vendorAuth";
 import { toast } from "../../../store/toast";
-
-async function api(method, path, body) {
-  const token = getVendorToken();
-  const r = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!r.ok) {
-    const err = await r.json().catch(() => ({}));
-    throw Object.assign(new Error(err.error || `http_${r.status}`), { status: r.status, body: err });
-  }
-  return r.status === 204 ? null : await r.json();
-}
 
 function fmtDate(d) {
   if (!d) return null;
@@ -36,7 +18,7 @@ export default function DocumentsConfirm({ event }) {
 
   async function load() {
     try {
-      const list = await api("GET", "/portal/vendor/event-documents");
+      const list = await vendorApi.listEventDocuments();
       setDocs(list);
     } catch (err) {
       toast.error(`載入失敗：${err.body?.error || err.message}`);
@@ -50,7 +32,7 @@ export default function DocumentsConfirm({ event }) {
   async function ack(templateId) {
     setAcking((s) => new Set(s).add(templateId));
     try {
-      const r = await api("POST", `/portal/vendor/event-documents/${templateId}/ack`);
+      const r = await vendorApi.ackDocument(templateId);
       setDocs((list) => list.map((d) => d.templateId === templateId ? { ...d, ackedAt: r.ackedAt } : d));
       toast.success("已確認");
     } catch (err) {

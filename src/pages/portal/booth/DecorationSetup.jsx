@@ -2,26 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { SceneHead, Panel } from "../../../components/Scene";
 import { Icon } from "../../../components/Icon";
-import { getVendorToken } from "../../../lib/vendorAuth";
-import { API_BASE } from "../../../lib/apiBase";
+import { vendorApi } from "../../../lib/vendorAuth";
 import { toast } from "../../../store/toast";
-
-async function api(method, path, body) {
-  const token = getVendorToken();
-  const r = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!r.ok) {
-    const err = await r.json().catch(() => ({}));
-    throw Object.assign(new Error(err.error || `http_${r.status}`), { status: r.status, body: err });
-  }
-  return r.status === 204 ? null : await r.json();
-}
 
 const MODE_META = {
   "booth-vendor": {
@@ -58,14 +40,9 @@ export default function DecorationSetup({ vendor: vendorProp, event }) {
   // 拿取目前邀請（若已有）
   useEffect(() => {
     let alive = true;
-    (async () => {
-      try {
-        const inv = await api("GET", "/portal/vendor/decorator-invitation");
-        if (alive) setInvitation(inv);
-      } catch (err) {
-        if (err.status !== 404) console.warn("load invitation failed", err);
-      }
-    })();
+    vendorApi.getDecoratorInvitation()
+      .then((inv) => { if (alive) setInvitation(inv); })
+      .catch((err) => { if (err.status !== 404) console.warn("load invitation failed", err); });
     return () => { alive = false; };
   }, []);
 
@@ -73,7 +50,7 @@ export default function DecorationSetup({ vendor: vendorProp, event }) {
     if (vendor?.decorationMode === mode) return;
     setSaving(true);
     try {
-      const updated = await api("PATCH", "/portal/vendor/decoration-mode", { mode });
+      const updated = await vendorApi.setDecorationMode(mode);
       setVendor((v) => ({ ...v, ...updated }));
       window.dispatchEvent(new Event("vendor-refetch"));
       toast.success(mode === "self" ? "已切換為自行裝潢" : "已選擇主辦方裝潢");
@@ -87,7 +64,7 @@ export default function DecorationSetup({ vendor: vendorProp, event }) {
   async function generateInvitation() {
     setGenerating(true);
     try {
-      const inv = await api("POST", "/portal/vendor/decorator-invitation");
+      const inv = await vendorApi.createDecoratorInvitation();
       setInvitation(inv);
       toast.success("邀請連結已產生");
     } catch (err) {

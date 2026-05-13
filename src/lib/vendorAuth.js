@@ -67,11 +67,23 @@ async function uploadFile(path, file) {
 }
 
 export const vendorApi = {
-  login: (taxId) => request("POST", "/portal/vendor/login", { body: { vendorId: taxId, taxId } }),
-  me: () => request("GET", "/portal/vendor/me"),
-  listPackages: () => request("GET", "/portal/sponsorship-packages"),
+  // 登入 / 自己資料
+  login:          (taxId)      => request("POST",  "/portal/vendor/login", { body: { vendorId: taxId, taxId } }),
+  me:             ()           => request("GET",   "/portal/vendor/me"),
+
+  // 贊助方案
+  listPackages:   ()           => request("GET",   "/portal/sponsorship-packages"),
   setSponsorship: (packageIds) => request("PATCH", "/portal/vendor/sponsorship", { body: { packageIds } }),
-  uploadProof: (file) => uploadFile("/portal/vendor/payment-proof", file),
+  uploadProof:    (file)       => uploadFile("/portal/vendor/payment-proof", file),
+
+  // 裝潢方案
+  getDecoratorInvitation:    ()     => request("GET",   "/portal/vendor/decorator-invitation"),
+  createDecoratorInvitation: ()     => request("POST",  "/portal/vendor/decorator-invitation"),
+  setDecorationMode:         (mode) => request("PATCH", "/portal/vendor/decoration-mode", { body: { mode } }),
+
+  // 展覽文件確認
+  listEventDocuments: ()       => request("GET",  "/portal/vendor/event-documents"),
+  ackDocument:        (tplId)  => request("POST", `/portal/vendor/event-documents/${tplId}/ack`),
 };
 
 // 廠商 packageTypes 派生：用方案 id 去 packages 對照表查 type

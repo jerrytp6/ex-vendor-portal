@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { vendorApi, clearVendorToken } from "../../../lib/vendorAuth";
+import { PAYMENT_STATUS } from "../../../constants/paymentStatus";
 import { Icon } from "../../../components/Icon";
 import { toast } from "../../../store/toast";
 
@@ -108,7 +109,7 @@ export default function SelectSponsorship() {
 
   function toggle(id) {
     // 已通過後鎖定，不能再切換選擇
-    if (vendor?.paymentStatus === "approved") return;
+    if (vendor?.paymentStatus === PAYMENT_STATUS.APPROVED) return;
     const next = new Set(selected);
     if (next.has(id)) next.delete(id);
     else next.add(id);
@@ -156,7 +157,7 @@ export default function SelectSponsorship() {
   }
 
   const selectedPackages = packages.filter((p) => selected.has(p.id));
-  const isApproved = vendor?.paymentStatus === "approved";
+  const isApproved = vendor?.paymentStatus === PAYMENT_STATUS.APPROVED;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
