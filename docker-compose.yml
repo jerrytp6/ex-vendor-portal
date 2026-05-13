@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ex-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: dev
+      MYSQL_DATABASE: ex
+      MYSQL_USER: ex
+      MYSQL_PASSWORD: ex
+    ports:
+      - "3306:3306"
+    volumes:
+      - ex-mysql-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pdev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer:latest
+    container_name: ex-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # dev 階段測試 SMTP — UI 在 :8025 看寄出的信、:1025 是 SMTP listener
+  # 生產環境用業主提供的 SMTP，這個 service 不啟用即可
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ex-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+
+volumes:
+  ex-mysql-data:
