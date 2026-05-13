@@ -107,6 +107,8 @@ export default function SelectSponsorship() {
   );
 
   function toggle(id) {
+    // 已通過後鎖定，不能再切換選擇
+    if (vendor?.paymentStatus === "approved") return;
     const next = new Set(selected);
     if (next.has(id)) next.delete(id);
     else next.add(id);
@@ -154,6 +156,7 @@ export default function SelectSponsorship() {
   }
 
   const selectedPackages = packages.filter((p) => selected.has(p.id));
+  const isApproved = vendor?.paymentStatus === "approved";
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
@@ -187,10 +190,26 @@ export default function SelectSponsorship() {
       </header>
 
       <div className="max-w-[1280px] mx-auto px-8 py-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">選擇您的贊助方案</h1>
-        <p className="text-[14px] mb-8" style={{ color: "var(--text-secondary)" }}>
-          可同時選擇多項方案。送出後在付款前仍可回來變更。
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
+          {isApproved ? "您的贊助方案" : "選擇您的贊助方案"}
+        </h1>
+        <p className="text-[14px] mb-6" style={{ color: "var(--text-secondary)" }}>
+          {isApproved
+            ? "您的方案已通過確認，目前處於唯讀狀態。如需異動請聯絡客服。"
+            : "可同時選擇多項方案。送出後在付款前仍可回來變更。"}
         </p>
+
+        {isApproved && (
+          <div
+            className="rounded-xl p-4 mb-6 flex items-center gap-3"
+            style={{ background: "rgba(48,209,88,0.08)", border: "1px solid rgba(48,209,88,0.3)" }}
+          >
+            <Icon name="check" className="icon w-5 h-5" style={{ color: "#1f8a3a" }} />
+            <span className="text-[13px]" style={{ color: "#1f8a3a" }}>
+              <strong>方案已鎖定</strong>　如需變更，請聯絡主辦方客服。
+            </span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
           {/* Left：方案卡片或詳情 */}
@@ -334,22 +353,37 @@ export default function SelectSponsorship() {
                   <span className="text-[22px] font-bold tracking-tight" style={{ color: "#0071e3" }}>{fmt(total)}</span>
                 </div>
 
-                <button
-                  onClick={submit}
-                  disabled={submitting || selected.size === 0}
-                  className="w-full mt-4 py-3 rounded-xl text-white font-medium text-[14px]"
-                  style={{
-                    background: "linear-gradient(135deg, #0071e3, #5e5ce6)",
-                    opacity: submitting || selected.size === 0 ? 0.5 : 1,
-                    cursor: submitting || selected.size === 0 ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {submitting ? "儲存中…" : "確認並前往付款"}
-                </button>
+                {isApproved ? (
+                  <button
+                    onClick={() => navigate(`/portal/vendor/${vendorId}`)}
+                    className="w-full mt-4 py-3 rounded-xl text-white font-medium text-[14px]"
+                    style={{
+                      background: "linear-gradient(135deg, #30d158, #0bb850)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    返回 Dashboard →
+                  </button>
+                ) : (
+                  <button
+                    onClick={submit}
+                    disabled={submitting || selected.size === 0}
+                    className="w-full mt-4 py-3 rounded-xl text-white font-medium text-[14px]"
+                    style={{
+                      background: "linear-gradient(135deg, #0071e3, #5e5ce6)",
+                      opacity: submitting || selected.size === 0 ? 0.5 : 1,
+                      cursor: submitting || selected.size === 0 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {submitting ? "儲存中…" : "確認並前往付款"}
+                  </button>
+                )}
 
-                <div className="mt-4 text-[11px] font-display text-center" style={{ color: "var(--text-tertiary)" }}>
-                  確認後仍可在付款前回來變更
-                </div>
+                {!isApproved && (
+                  <div className="mt-4 text-[11px] font-display text-center" style={{ color: "var(--text-tertiary)" }}>
+                    確認後仍可在付款前回來變更
+                  </div>
+                )}
               </div>
             </div>
           </aside>
