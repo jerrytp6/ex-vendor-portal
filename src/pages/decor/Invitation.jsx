@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { API_BASE } from "../../lib/apiBase";
+import { setDecoratorToken } from "../../lib/decoratorAuth";
 import { Icon } from "../../components/Icon";
 import { toast } from "../../store/toast";
 
@@ -33,6 +34,8 @@ async function publicPost(path, body) {
 // 流程：看到邀請資訊 → 輸入統編 + 公司名 + 專案負責人 → 註冊 → 顯示成功畫面
 export default function DecoratorInvitation() {
   const { token } = useParams();
+  const navigate = useNavigate();
+  const [autoLoggingIn, setAutoLoggingIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [invitation, setInvitation] = useState(null);
   const [error, setError] = useState("");
@@ -99,11 +102,27 @@ export default function DecoratorInvitation() {
         contact: contact.trim(),
       });
       toast.success(matchedExisting ? "已接受邀請" : "註冊成功");
+      // 後端回傳 token，立即存入 localStorage，後續一鍵進後台
+      if (r.token) setDecoratorToken(r.token);
       setResult(r);
     } catch (err) {
       toast.error(`註冊失敗：${err.body?.error || err.message}`);
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  // 已註冊 → 點邀請連結重新登入（魔法連結）
+  async function autoLogin() {
+    setAutoLoggingIn(true);
+    try {
+      const r = await publicPost(`/public/decor-invite/${token}/auto-login`);
+      setDecoratorToken(r.token);
+      toast.success(`歡迎回來，${r.decorator.name}`);
+      navigate(`/portal/decorator/${r.decorator.id}`);
+    } catch (err) {
+      toast.error(`登入失敗：${err.body?.error || err.message}`);
+      setAutoLoggingIn(false);
     }
   }
 
@@ -201,18 +220,25 @@ export default function DecoratorInvitation() {
               <Row k="專案" v={result.project.title} />
             </div>
 
-            <Link
-              to="/portal/decorator-login"
-              className="mt-4 block text-center px-5 py-3 rounded-xl text-white font-medium text-[14px] no-underline"
-              style={{ background: "linear-gradient(135deg, #ff6a00, #ff2d92)" }}
+            <button
+              type="button"
+              onClick={() => result.token && navigate(`/portal/decorator/${result.decorator.id}`)}
+              disabled={!result.token}
+              className="mt-4 block w-full text-center px-5 py-3 rounded-xl text-white font-medium text-[14px]"
+              style={{
+                background: "linear-gradient(135deg, #ff6a00, #ff2d92)",
+                cursor: result.token ? "pointer" : "not-allowed",
+                opacity: result.token ? 1 : 0.6,
+              }}
             >
               進入裝潢商後台 →
-            </Link>
+            </button>
             <div
               className="text-[11px] font-display mt-3 p-3 rounded-lg"
               style={{ background: "rgba(0,113,227,0.06)", color: "var(--text-secondary)" }}
             >
-              💡 後續登入請至 <Link to="/portal/decorator-login" style={{ color: "#0071e3" }}>裝潢商登入頁</Link> 輸入統一編號。
+              💡 <strong>把此邀請連結存到書籤</strong>，下次直接點進來就會自動登入後台 — 不用記網址也不用密碼。
+              <br />或到 <Link to="/portal/decorator-login" style={{ color: "#0071e3" }}>裝潢商登入頁</Link> 用統編登入。
             </div>
           </div>
         ) : alreadyAccepted ? (
@@ -224,11 +250,30 @@ export default function DecoratorInvitation() {
               <Icon name="check" className="icon" />
               <style>{`.text-center .icon { stroke: white; width: 32px; height: 32px; }`}</style>
             </div>
-            <h2 className="text-xl font-bold mb-2 tracking-tight">此邀請已接受</h2>
+            <h2 className="text-xl font-bold mb-2 tracking-tight">歡迎回來</h2>
             <p className="text-[14px] mb-5" style={{ color: "var(--text-secondary)" }}>
-              {invitation.decoratorCompany ? `由 ${invitation.decoratorCompany} 接受` : ""}。
-              <br />如您已是該裝潢商，請直接從專屬連結進入後台。
+              {invitation.decoratorCompany || "您"} 已是此專案的裝潢商。<br />
+              點下方按鈕一鍵進入後台。
             </p>
+            <button
+              type="button"
+              onClick={autoLogin}
+              disabled={autoLoggingIn}
+              className="block w-full text-center px-5 py-3 rounded-xl text-white font-medium text-[14px] mb-3"
+              style={{
+                background: "linear-gradient(135deg, #ff6a00, #ff2d92)",
+                cursor: autoLoggingIn ? "wait" : "pointer",
+                opacity: autoLoggingIn ? 0.7 : 1,
+              }}
+            >
+              {autoLoggingIn ? "登入中…" : "進入裝潢商後台 →"}
+            </button>
+            <div
+              className="text-[11px] font-display p-3 rounded-lg"
+              style={{ background: "rgba(0,113,227,0.06)", color: "var(--text-secondary)" }}
+            >
+              💡 此邀請連結是您的<strong>永久魔法登入連結</strong>，建議存到書籤。也可改至 <Link to="/portal/decorator-login" style={{ color: "#0071e3" }}>裝潢商登入頁</Link> 用統編登入。
+            </div>
           </div>
         ) : (
           <div className="panel">

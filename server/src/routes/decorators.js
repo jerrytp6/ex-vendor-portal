@@ -1,8 +1,21 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
+import { signToken } from "../lib/jwt.js";
 
 export const publicDecoratorsRouter = Router();
+
+function signDecoratorToken(d) {
+  return signToken({ scope: "decorator", decoratorId: d.id, tenantId: d.tenantId });
+}
+function serializeDec(d) {
+  return {
+    id: d.id, tenantId: d.tenantId,
+    name: d.name, taxId: d.taxId,
+    email: d.email, phone: d.phone, contact: d.contact,
+    status: d.status,
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // 公開 token endpoints（裝潢商接收邀約）
@@ -133,15 +146,38 @@ publicDecoratorsRouter.post("/decor-invite/:token/register", async (req, res, ne
       data: { decoratorId: decorator.id, decorationMode: "self" },
     });
 
+    // 同時發 decorator JWT，方便前端註冊後一鍵進後台
+    const token = signDecoratorToken(decorator);
     res.status(201).json({
-      decorator: {
-        id: decorator.id,
-        name: decorator.name,
-        taxId: decorator.taxId,
-        email: decorator.email,
-        contact: decorator.contact,
-      },
+      decorator: serializeDec(decorator),
       project: { id: project.id, title: project.title, status: project.status },
+      token,
     });
+  } catch (err) { next(err); }
+});
+
+// 已註冊的裝潢商再次點同邀請連結 → 自動簽 token（魔法登入）
+// POST /public/decor-invite/:token/auto-login
+publicDecoratorsRouter.post("/decor-invite/:token/auto-login", async (req, res, next) => {
+  try {
+    const inv = await prisma.decoratorInvitation.findUnique({ where: { token: req.params.token } });
+    if (!inv) return res.status(404).json({ error: "invalid_token" });
+    if (inv.expiresAt < new Date()) return res.status(410).json({ error: "expired" });
+    if (inv.status !== "accepted") return res.status(409).json({ error: "not_registered" });
+
+    // 用 invitation 記錄的 email 找對應 decorator
+    const decorator = await prisma.decorator.findFirst({
+      where: {
+        tenantId: inv.tenantId,
+        OR: [
+          { email: inv.decoratorEmail },
+          { name: inv.decoratorCompany ?? undefined },
+        ].filter((c) => Object.values(c).every((v) => v !== undefined)),
+      },
+    });
+    if (!decorator) return res.status(404).json({ error: "decorator_not_found" });
+
+    const token = signDecoratorToken(decorator);
+    res.json({ token, decorator: serializeDec(decorator) });
   } catch (err) { next(err); }
 });
