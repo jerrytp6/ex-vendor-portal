@@ -57,14 +57,11 @@ publicDecoratorsRouter.get("/decor-invite/:token/lookup-tax", async (req, res, n
       where: { tenantId: inv.tenantId, taxId },
     });
     if (!existing) return res.status(404).json({ error: "not_found" });
+    // 公開端點，只回必要欄位（前端 auto-fill 只需要公司名）
+    // 不洩漏 email / phone / address，避免被用於統編列舉攻擊
     res.json({
-      id: existing.id,
+      found: true,
       name: existing.name,
-      taxId: existing.taxId,
-      email: existing.email,
-      phone: existing.phone,
-      address: existing.address,
-      contact: existing.contact,
     });
   } catch (err) { next(err); }
 });

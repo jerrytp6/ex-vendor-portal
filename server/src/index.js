@@ -32,6 +32,7 @@ app.use(cors({
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 
+// 一般 API：寬鬆（300/分）
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 300,
@@ -40,16 +41,38 @@ const apiLimiter = rateLimit({
   message: { error: "too_many_requests" },
 });
 
+// 公開端點（無 token 認證）：嚴格（30/分）
+// 防止統編列舉 / 註冊濫用
+const publicLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "too_many_requests_public" },
+});
+
+// 廠商 / 裝潢商登入：超嚴格（10/分）
+const loginLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "too_many_login_attempts" },
+});
+
 app.use("/", healthRouter);
 app.use(apiLimiter);
+
+// 廠商 / 裝潢商登入端點：嚴格 rate limit
+app.use(["/portal/vendor/login", "/portal/decorator/login"], loginLimiter);
 
 // 廠商：login(公開) + me/sponsorship/event-documents/decorator-invitation (vendor token)
 app.use("/portal", portalVendorRouter);
 // 裝潢商：login(公開) + me/projects/designs/messages (decorator token)
 app.use("/portal", portalDecoratorRouter);
 
-// 公開：裝潢商接受邀請 token endpoints
-app.use("/public", publicDecoratorsRouter);
+// 公開：裝潢商接受邀請 token endpoints — 嚴格 rate limit
+app.use("/public", publicLimiter, publicDecoratorsRouter);
 
 // 下載上傳的檔案
 app.use("/files", filesRouter);

@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import { prisma } from "../lib/prisma.js";
 import { signToken } from "../lib/jwt.js";
 import { requireVendor } from "../middleware/requireVendor.js";
+import { PAYMENT_STATUS, AUTO_APPROVAL_REVIEWER } from "../constants/paymentStatus.js";
 
 export const portalVendorRouter = Router();
 
@@ -19,7 +20,7 @@ function serializeVendor(v) {
     email: v.email,
     phone: v.phone,
     sponsorshipPackageIds: Array.isArray(v.sponsorshipPackageIds) ? v.sponsorshipPackageIds : [],
-    paymentStatus: v.paymentStatus || "not_started",
+    paymentStatus: v.paymentStatus || PAYMENT_STATUS.NOT_STARTED,
     paymentAmount: v.paymentAmount != null ? Number(v.paymentAmount) : null,
     paymentProofUrl: v.paymentProofUrl,
     paymentSubmittedAt: v.paymentSubmittedAt,
@@ -111,9 +112,9 @@ portalVendorRouter.patch("/vendor/sponsorship", requireVendor, async (req, res, 
     const body = sponsorshipBody.parse(req.body);
     const vendor = await prisma.vendor.findUnique({ where: { id: req.vendor.vendorId } });
     if (!vendor) return res.status(404).json({ error: "vendor_not_found" });
-    const status = vendor.paymentStatus || "not_started";
+    const status = vendor.paymentStatus || PAYMENT_STATUS.NOT_STARTED;
     // 已通過後鎖定；其餘狀態（未開始/已提交/退件）皆可變更
-    if (status === "approved") {
+    if (status === PAYMENT_STATUS.APPROVED) {
       return res.status(409).json({ error: "payment_locked", paymentStatus: status });
     }
     // 驗證 packageIds 屬於同 tenant 且 active
@@ -131,10 +132,10 @@ portalVendorRouter.patch("/vendor/sponsorship", requireVendor, async (req, res, 
       data: {
         sponsorshipPackageIds: body.packageIds,
         paymentAmount: total,
-        paymentStatus: "approved",
+        paymentStatus: PAYMENT_STATUS.APPROVED,
         paymentSubmittedAt: now,
         paymentReviewedAt: now,
-        paymentReviewedBy: "auto-approval",
+        paymentReviewedBy: AUTO_APPROVAL_REVIEWER,
         paymentProofUrl: null,
         paymentRejectReason: null,
       },
